@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dental Disease Detection</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />  
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+
+    <style>
+        body { 
+            background-color: #f8f9fa; /* Subtle background */
+            font-family: 'Open Sans', sans-serif; /* Primary font */
+        }
+
+        .navbar {
+            background-color: #007bff;
+            color: #fff;
+        } 
+
+        .container {
+            max-width: 800px; 
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .btn-upload {
+            background-color: #007bff; 
+            color: #fff;
+            border: none; /* Remove default input border */
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; 
+            display: flex; /* For centering the icon */
+            align-items: center;
+        }
+        .btn-upload i {
+            margin-right: 5px; 
+        }
+        .btn-upload:hover {
+            background-color: #0056b3;
+            {% comment %} color: #fff; {% endcomment %}
+        }
+        #imageInput {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Analyzing State */
+        #analyze-container.analyzing .upload-btn-wrapper {
+            opacity: 0.5;
+        }
+        #analyze-container.analyzing .spinner-border {
+            display: block;
+            margin: 20px auto;
+        }
+
+        /* Image Styles */
+        .dental-illustration {
+            max-width: 80%; 
+            height: auto; 
+            display: block; 
+            margin: 20px auto;  
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); 
+            border-radius: 5px;
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container">
+                <a class="navbar-brand" href="#" style="color: #fff;">Dental Disease Detection</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8"> 
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h2 class="text-center mb-4">Detect Dental Diseases</h2>
+
+                        {% if error_message %}
+                            <div class="alert alert-danger mt-3" role="alert">
+                                {{ error_message }}
+                            </div>
+                        {% endif %}
+
+                        <div class="upload-btn-wrapper">
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <label for="imageInput" class="btn-upload"><i class="fas fa-upload"></i> Upload Image</label> 
+                                <input type="file" id="imageInput" name="image" accept="image/*" required>
+                            </form>
+                        </div>
+                        <div id="imagePreview" class="text-center mt-3"></div>
+
+                        <div id="detectionResult" class="mt-4">
+                            {% if prediction %}
+                                <h2>Prediction: {{ prediction }}</h2>
+                                <canvas id="confidenceChart"></canvas> 
+                            {% else %}
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="sr-only">Analyzing image...</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+<footer>
+    <div class="container">
+        <p>&copy; 2024 Dental Disease Detection</p>
+    </div>
+</footer> 
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Image preview
+        $('#imageInput').change(function() {
+            var file = $(this)[0].files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function() {
+                    $('#imagePreview').html('<img src="' + reader.result + '" class="img-fluid preview-image" alt="Preview">');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Drag and drop functionality
+        $('#imageInput').on('dragover', function(e) {
+            e.preventDefault();
+            $(this).addClass('drag-over');
+        });
+
+        $('#imageInput').on('dragleave', function(e) {
+            e.preventDefault();
+            $(this).removeClass('drag-over');
+        });
+
+        $('#imageInput').on('drop', function(e) {
+            e.preventDefault();
+            $(this).removeClass('drag-over');
+            var file = e.originalEvent.dataTransfer.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function() {
+                    $('#imagePreview').html('<img src="' + reader.result + '" class="img-fluid preview-image" alt="Preview">');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Submit form on file select
+        $('#imageInput').on('change', function() {
+            $(this).closest('form').submit();
+        });
+    });
+</script>
+</body>
+</html>

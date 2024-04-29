@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>XRay Result</title>
+    <style>
+        .result-container {
+            background-color: #fff;
+            padding: 40px;
+            margin-top: 40px; 
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-container h2 { 
+            text-align: center;
+            margin-bottom: 20px;
+            color: #28a745; /* Green for success, or use your preferred color */
+        }
+        
+        .result-container p { /* Additional element for prediction text */
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 10px; 
+        }
+        
+        .result-image {
+            max-width: 100%; 
+            height: auto;     
+            display: block;   
+            margin: 20px auto; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+        }
+    </style>     
+</head>
+<body>
+    <div class="container result-container"> 
+        <h2>Analysis Result</h2> 
+        <img class="result-image" src="data:image/png;base64,{{ processed_image }}" alt="Processed Image">
+        <p>{{ prediction }}</p> </div> 
+</body>
+</html>
